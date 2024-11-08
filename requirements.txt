@@ -1,1 +1,6 @@
 streamlit
+pandas
+huggingface_hub
+numpy
+requests
+python-dotenv
