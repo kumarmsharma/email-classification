@@ -91,11 +91,14 @@ def plot_category_distribution(df):
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
     
-    st.title("IT Support Ticket Classifier")
-    st.markdown("""
-    This application uses LLMsa models (Llama-3.2-3B and Mixtral-8x7B) to classify IT support tickets 
-    into predefined categories. Compare the performance of different models and analyze their predictions.
-    """)
+    st.image("https://via.placeholder.com/800x150?text=IT+Support+Ticket+Classifier", use_column_width=True)
+st.title("🎫 IT Support Ticket Classifier")
+st.markdown("""
+Welcome to the **IT Support Ticket Classifier**!  
+This application leverages **LLMs** (Llama-3.2-3B and Mixtral-8x7B) to classify IT support tickets into predefined categories.  
+Analyze ticket data, compare model performance, and explore insights easily.
+""")
+
     
     # Sidebar configuration
     with st.sidebar:
