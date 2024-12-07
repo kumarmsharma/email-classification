@@ -91,7 +91,7 @@ def plot_category_distribution(df):
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
     
-    st.image("https://your-updated-banner-url.jpg", use_column_width=True)  # Update with the latest banner image URL
+    st.image("https://media.assettype.com/analyticsinsight%2Fimport%2Fwp-content%2Fuploads%2F2020%2F08%2FIT-TICKET-CLASSIFICATION.jpg?w=1024&auto=format%2Ccompress&fit=max", use_column_width=True)
     st.title("🎫 IT Support Ticket Classifier")
     st.markdown("""
     Welcome to the **IT Support Ticket Classifier**!  
@@ -101,13 +101,13 @@ def main():
 
     # Sidebar configuration
     with st.sidebar:
-        st.markdown("## ⚙️ Configuration")
+        st.header("Configuration")
         api_key = st.secrets['HFkey']
         st.markdown("---")
-        st.markdown("## 📊 Model Selection")
+        st.header("Model Selection")
         selected_models = st.multiselect(
             "Choose models to compare:",
-            ["Llama-3.2-3B", "Mixtral-8x7B"],
+            ["Llama-3.2-3B", "Mixtral-8x7B"],  # Updated model names
             default=["Llama-3.2-3B"]
         )
     
@@ -123,27 +123,25 @@ def main():
     # Single Ticket Analysis
     with tab1:
         st.header("Single Ticket Classification")
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            input_text = st.text_area(
-                "Enter support ticket text 📝:",
-                height=100,
-                placeholder="Type or paste the support ticket here...",
-                help="Input the text of the IT support ticket for classification."
-            )
-        with col2:
-            if st.button("Classify Ticket") and api_key and input_text:
-                with st.spinner("Classifying ticket..."):
-                    for model in selected_models:
-                        st.subheader(f"{model} Classification")
-                        if model == "Llama-3.2-3B":
-                            classifier = LlamaClassifier(api_key)
-                        else:
-                            classifier = MixtralClassifier(api_key)
-                        
-                        prediction = classifier.predict(input_text)
-                        st.success(f"Predicted Category: {prediction}")
-                        st.markdown("---")
+        input_text = st.text_area(
+            "Enter support ticket text 📝:",
+            height=100,
+            placeholder="Type or paste the support ticket here...",
+            help="Input the text of the IT support ticket for classification."
+        )
+        
+        if st.button("Classify Ticket") and api_key and input_text:
+            with st.spinner("Classifying ticket..."):
+                for model in selected_models:
+                    st.subheader(f"{model} Classification")
+                    if model == "Llama-3.2-3B":
+                        classifier = LlamaClassifier(api_key)
+                    else:
+                        classifier = MixtralClassifier(api_key)
+                    
+                    prediction = classifier.predict(input_text)
+                    st.success(f"Predicted Category: {prediction}")
+                    st.markdown("---")
     
     # Batch Analysis
     with tab2:
@@ -156,7 +154,7 @@ def main():
             sample_df = df.head(num_samples)
             results = []
             
-            progress_text = st.empty()
+            progress_text = "Analyzing tickets..."
             progress_bar = st.progress(0)
             
             for idx, row in enumerate(sample_df.iterrows()):
@@ -178,7 +176,6 @@ def main():
                 
                 results.append(result)
                 progress_bar.progress((idx + 1) / num_samples)
-                progress_text.markdown(f"Processing ticket {idx + 1} of {num_samples}...")
                 time.sleep(2)  # Rate limiting
             
             results_df = pd.DataFrame(results)
@@ -206,6 +203,7 @@ def main():
         st.header("Dataset Overview")
         df = load_and_cache_data()
         
+        # Display basic statistics
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric("Total Tickets", len(df))
@@ -214,9 +212,11 @@ def main():
         with col3:
             st.metric("Most Common Category", df['Topic_group'].mode()[0])
         
+        # Show category distribution
         st.subheader("Category Distribution")
         plot_category_distribution(df)
         
+        # Display sample tickets
         st.subheader("Sample Tickets")
         sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
         st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
