@@ -19,8 +19,8 @@ def main():
 
     # Apply Theme
     theme_styles = {
-        "Light": {"background": "#FFFFFF", "text": "#000000", "sidebar_text": "#000000"},
-        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF", "sidebar_text": "#000000"}
+        "Light": {"background": "#FFFFFF", "text": "#000000", "sidebar_bg": "#F8F9FA", "sidebar_text": "#000000"},
+        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF", "sidebar_bg": "#000000", "sidebar_text": "#000000"}
     }
     st.markdown(
         f"""
@@ -30,6 +30,10 @@ def main():
             color: {theme_styles[theme_choice]["text"]};
         }}
         .css-1d391kg {{
+            background-color: {theme_styles[theme_choice]["sidebar_bg"]};
+            color: {theme_styles[theme_choice]["sidebar_text"]};
+        }}
+        .css-1d391kg h2 {{
             color: {theme_styles[theme_choice]["sidebar_text"]};
         }}
         </style>
