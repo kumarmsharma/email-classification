@@ -113,7 +113,14 @@ def main():
         )
     
     # Main content tabs
-    tab1, tab2, tab3 = st.tabs(["Single Ticket", "Batch Analysis", "Dataset Overview"])
+    tab1, tab2, tab3 = st.tabs(
+    [
+        "🎫 Single Ticket",
+        "📊 Batch Analysis",
+        "📂 Dataset Overview"
+    ]
+    )
+
     
     # Single Ticket Analysis
     with tab1:
