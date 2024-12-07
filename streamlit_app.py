@@ -93,7 +93,7 @@ def main():
     
     st.title("IT Support Ticket Classifier")
     st.markdown("""
-    This application uses LLMs models (Llama-3.2-3B and Mixtral-8x7B) to classify IT support tickets 
+    This application uses LLMsa models (Llama-3.2-3B and Mixtral-8x7B) to classify IT support tickets 
     into predefined categories. Compare the performance of different models and analyze their predictions.
     """)
     
