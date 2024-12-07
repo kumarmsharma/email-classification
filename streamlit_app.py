@@ -42,7 +42,7 @@ class LlamaClassifier(BaseTicketClassifier):
         messages = [{"role": "user", "content": self.create_prompt(ticket)}]
         try:
             response = self.client.chat.completions.create(
-                model="meta-llama/Llama-3.2-3B-Instruct",  # Updated model
+                model="meta-llama/Llama-3.2-3B-Instruct",
                 messages=messages,
                 max_tokens=20,
                 temperature=0.1
@@ -52,12 +52,12 @@ class LlamaClassifier(BaseTicketClassifier):
             st.error(f"Llama Error: {e}")
             return "Error"
 
-class MixtralClassifier(BaseTicketClassifier):  # Renamed from MistralClassifier
+class MixtralClassifier(BaseTicketClassifier):
     def predict(self, ticket):
         messages = [{"role": "user", "content": self.create_prompt(ticket)}]
         try:
             response = self.client.chat.completions.create(
-                model="mistralai/Mixtral-8x7B-Instruct-v0.1",  # Updated model
+                model="mistralai/Mixtral-8x7B-Instruct-v0.1",
                 messages=messages,
                 max_tokens=20,
                 temperature=0.1
@@ -90,40 +90,50 @@ def plot_category_distribution(df):
 
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
-    
-    # Use the correct banner URL
-    st.image(
-        "https://via.placeholder.com/1024x150.png?text=IT+Support+Ticket+Classifier",
-        use_column_width=True
+
+    # Sidebar for theme and configurations
+    with st.sidebar:
+        st.header("Configuration")
+        theme_choice = st.radio("Select Theme:", ["Light", "Dark"], index=0)
+        api_key = st.secrets['HFkey']
+        st.markdown("---")
+        st.header("Model Selection")
+        selected_models = st.multiselect(
+            "Choose models to compare:",
+            ["Llama-3.2-3B", "Mixtral-8x7B"],
+            default=["Llama-3.2-3B"]
+        )
+        uploaded_file = st.file_uploader("Upload a CSV for Custom Analysis", type="csv")
+
+    # Apply Theme
+    theme_styles = {
+        "Light": {"background": "#FFFFFF", "text": "#000000"},
+        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF"}
+    }
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {theme_styles[theme_choice]["background"]};
+            color: {theme_styles[theme_choice]["text"]};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
     )
+
+    # Header
+    st.image("https://via.placeholder.com/1024x150.png?text=IT+Support+Ticket+Classifier", use_column_width=True)
     st.title("🎫 IT Support Ticket Classifier")
     st.markdown("""
-    Welcome to the **IT Support Ticket Classifier**!  
-    This application leverages **LLMs** (Llama-3.2-3B and Mixtral-8x7B) to classify IT support tickets into predefined categories.  
+    Welcome to the **IT Support Ticket Classifier**!
+    This application leverages **LLMs** to classify IT support tickets into predefined categories.
     Analyze ticket data, compare model performance, and explore insights easily.
     """)
 
-    # Sidebar configuration
-    with st.sidebar:
-        st.header("⚙️ Configuration")
-        api_key = st.secrets['HFkey']
-        st.markdown("---")
-        st.header("📊 Model Selection")
-        selected_models = st.multiselect(
-            "Choose models to compare:",
-            ["Llama-3.2-3B", "Mixtral-8x7B"],  # Updated model names
-            default=["Llama-3.2-3B"]
-        )
-        st.markdown("---")
-        st.write("**Developed by Team JAK**")
-
     # Main content tabs
     tab1, tab2, tab3 = st.tabs(
-        [
-            "🎫 Single Ticket",
-            "📊 Batch Analysis",
-            "📂 Dataset Overview"
-        ]
+        ["🎫 Single Ticket", "📊 Batch Analysis", "📂 Dataset Overview"]
     )
 
     # Single Ticket Analysis
@@ -135,8 +145,8 @@ def main():
             placeholder="Type or paste the support ticket here...",
             help="Input the text of the IT support ticket for classification."
         )
-        submit_button = st.button("🎯 Classify Ticket")
-        if submit_button and api_key and input_text:
+
+        if st.button("Classify Ticket") and api_key and input_text:
             with st.spinner("Classifying ticket..."):
                 for model in selected_models:
                     st.subheader(f"{model} Classification")
@@ -144,47 +154,76 @@ def main():
                         classifier = LlamaClassifier(api_key)
                     else:
                         classifier = MixtralClassifier(api_key)
-                    
+
                     prediction = classifier.predict(input_text)
                     st.success(f"Predicted Category: {prediction}")
                     st.markdown("---")
-    
+
     # Batch Analysis
     with tab2:
         st.header("Batch Analysis")
-        df = load_and_cache_data()
+        df = load_and_cache_data() if not uploaded_file else pd.read_csv(uploaded_file)
+
         num_samples = st.slider("Number of tickets to analyze:", 1, 20, 5)
-        if st.button("📊 Start Batch Analysis") and api_key:
+
+        if st.button("Start Batch Analysis") and api_key:
             sample_df = df.head(num_samples)
             results = []
-            
+
+            progress_bar = st.progress(0)
+
             for idx, row in enumerate(sample_df.iterrows()):
                 ticket_text = row[1]['Document']
                 actual_category = row[1]['Topic_group']
+
                 result = {"Ticket": ticket_text[:100] + "...", "Actual": actual_category}
-                
+
                 for model in selected_models:
                     if model == "Llama-3.2-3B":
                         classifier = LlamaClassifier(api_key)
                     else:
                         classifier = MixtralClassifier(api_key)
-                    
+
                     result[model] = classifier.predict(ticket_text)
-                
+
                 results.append(result)
-            
+                progress_bar.progress((idx + 1) / num_samples)
+                time.sleep(2)
+
             results_df = pd.DataFrame(results)
+
+            st.subheader("Model Accuracies")
+            for model in selected_models:
+                accuracy = (results_df[model] == results_df['Actual']).mean() * 100
+                st.metric(f"{model} Accuracy", f"{accuracy:.1f}%")
+
+            st.subheader("Classification Results")
             st.dataframe(results_df)
-    
+
+            if st.button("Download Results"):
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                results_df.to_csv(f'classification_results_{timestamp}.csv', index=False)
+                st.success("Results saved to CSV!")
+
     # Dataset Overview
     with tab3:
         st.header("Dataset Overview")
         df = load_and_cache_data()
-        st.metric("Total Tickets", len(df))
-        st.metric("Categories", df['Topic_group'].nunique())
-        st.metric("Most Common Category", df['Topic_group'].mode()[0])
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("📂 Total Tickets", len(df))
+        with col2:
+            st.metric("📊 Categories", df['Topic_group'].nunique())
+        with col3:
+            st.metric("📈 Most Common", df['Topic_group'].mode()[0])
+
         st.subheader("Category Distribution")
         plot_category_distribution(df)
+
+        st.subheader("Sample Tickets")
+        sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
+        st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
 
     # Footer
     st.markdown("---")
