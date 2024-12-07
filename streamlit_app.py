@@ -129,6 +129,11 @@ def main():
         h1, h2, h3, h4, h5, h6, p, label, span {{
             color: {theme_styles[theme_choice]["text"]} !important;
         }}
+        .footer {{
+            text-align: center;
+            color: {theme_styles[theme_choice]["text"]};
+            margin-top: 20px;
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -243,6 +248,11 @@ def main():
         sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
         st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
 
-
-if __name__ == "__main__":
-    main()
+    # Footer
+    st.markdown(
+        """
+        <div class="footer">
+            Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong>
+        </div>
+        """,
+        unsafe_allow_html=T
