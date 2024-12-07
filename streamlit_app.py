@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import altair as alt
 
+
 class BaseTicketClassifier:
     def __init__(self, api_key):
         self.client = InferenceClient(api_key=api_key)
@@ -12,7 +13,7 @@ class BaseTicketClassifier:
             "Hardware", "HR Support", "Access", "Miscellaneous",
             "Storage", "Purchase", "Internal Project", "Administrative rights"
         ]
-    
+
     def create_prompt(self, ticket_text):
         return f"""You are an expert IT support ticket classifier. Your task is to classify the following support ticket into exactly one of these categories:
 
@@ -37,12 +38,13 @@ class BaseTicketClassifier:
 
         Category:"""
 
+
 class LlamaClassifier(BaseTicketClassifier):
     def predict(self, ticket):
         messages = [{"role": "user", "content": self.create_prompt(ticket)}]
         try:
             response = self.client.chat.completions.create(
-                model="meta-llama/Llama-3.2-3B-Instruct",
+                model="meta-llama/Llama-3.2-3B-Instruct",  # Updated model
                 messages=messages,
                 max_tokens=20,
                 temperature=0.1
@@ -52,12 +54,13 @@ class LlamaClassifier(BaseTicketClassifier):
             st.error(f"Llama Error: {e}")
             return "Error"
 
-class MixtralClassifier(BaseTicketClassifier):
+
+class MixtralClassifier(BaseTicketClassifier):  # Renamed from MistralClassifier
     def predict(self, ticket):
         messages = [{"role": "user", "content": self.create_prompt(ticket)}]
         try:
             response = self.client.chat.completions.create(
-                model="mistralai/Mixtral-8x7B-Instruct-v0.1",
+                model="mistralai/Mixtral-8x7B-Instruct-v0.1",  # Updated model
                 messages=messages,
                 max_tokens=20,
                 temperature=0.1
@@ -67,6 +70,7 @@ class MixtralClassifier(BaseTicketClassifier):
             st.error(f"Mixtral Error: {e}")
             return "Error"
 
+
 def load_and_cache_data():
     if 'df' not in st.session_state:
         st.session_state.df = pd.read_csv(
@@ -74,10 +78,11 @@ def load_and_cache_data():
         )
     return st.session_state.df
 
+
 def plot_category_distribution(df):
     category_counts = df['Topic_group'].value_counts().reset_index()
     category_counts.columns = ['Category', 'Count']
-    
+
     chart = alt.Chart(category_counts).mark_bar().encode(
         x='Category',
         y='Count',
@@ -85,8 +90,9 @@ def plot_category_distribution(df):
     ).properties(
         title='Distribution of Ticket Categories'
     )
-    
+
     st.altair_chart(chart, use_container_width=True)
+
 
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
@@ -107,8 +113,8 @@ def main():
 
     # Apply Theme
     theme_styles = {
-        "Light": {"background": "#FFFFFF", "text": "#000000"},
-        "Dark": {"background": "#000000", "text": "#FFFFFF"}  # Updated to full black and white
+        "Light": {"background": "#FFFFFF", "text": "#000000", "sidebar_bg": "#F0F2F6"},
+        "Dark": {"background": "#000000", "text": "#FFFFFF", "sidebar_bg": "#000000"}  # Black sidebar in dark mode
     }
     st.markdown(
         f"""
@@ -117,9 +123,8 @@ def main():
             background-color: {theme_styles[theme_choice]["background"]};
             color: {theme_styles[theme_choice]["text"]};
         }}
-        .sidebar-content {{
-            background-color: {theme_styles[theme_choice]["background"]};
-            color: {theme_styles[theme_choice]["text"]};
+        .css-1d391kg {{
+            background-color: {theme_styles[theme_choice]["sidebar_bg"]} !important;
         }}
         h1, h2, h3, h4, h5, h6, p, label, span {{
             color: {theme_styles[theme_choice]["text"]} !important;
@@ -238,12 +243,6 @@ def main():
         sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
         st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
 
-    st.markdown("---")
-    st.markdown("""
-    <div style='text-align: center;'>
-        <p>Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong></p>
-    </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
