@@ -85,13 +85,15 @@ def plot_category_distribution(df):
     ).properties(
         title='Distribution of Ticket Categories'
     )
+    
     st.altair_chart(chart, use_container_width=True)
 
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
     
+    # Use the correct banner URL
     st.image(
-        "https://via.placeholder.com/800x150.png?text=IT+Support+Ticket+Classifier",
+        "https://via.placeholder.com/1024x150.png?text=IT+Support+Ticket+Classifier",
         use_column_width=True
     )
     st.title("🎫 IT Support Ticket Classifier")
