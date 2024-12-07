@@ -91,7 +91,7 @@ def plot_category_distribution(df):
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
 
-    # Sidebar for theme and configurations
+    # Sidebar for Theme Switching and Configurations
     with st.sidebar:
         st.header("Configuration")
         theme_choice = st.radio("Select Theme:", ["Light", "Dark"], index=0)
@@ -108,7 +108,7 @@ def main():
     # Apply Theme
     theme_styles = {
         "Light": {"background": "#FFFFFF", "text": "#000000"},
-        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF"}
+        "Dark": {"background": "#000000", "text": "#FFFFFF"}  # Updated to full black and white
     }
     st.markdown(
         f"""
@@ -116,6 +116,13 @@ def main():
         .stApp {{
             background-color: {theme_styles[theme_choice]["background"]};
             color: {theme_styles[theme_choice]["text"]};
+        }}
+        .sidebar-content {{
+            background-color: {theme_styles[theme_choice]["background"]};
+            color: {theme_styles[theme_choice]["text"]};
+        }}
+        h1, h2, h3, h4, h5, h6, p, label, span {{
+            color: {theme_styles[theme_choice]["text"]} !important;
         }}
         </style>
         """,
@@ -170,13 +177,17 @@ def main():
             sample_df = df.head(num_samples)
             results = []
 
+            progress_text = "Analyzing tickets..."
             progress_bar = st.progress(0)
 
             for idx, row in enumerate(sample_df.iterrows()):
                 ticket_text = row[1]['Document']
                 actual_category = row[1]['Topic_group']
 
-                result = {"Ticket": ticket_text[:100] + "...", "Actual": actual_category}
+                result = {
+                    "Ticket": ticket_text[:100] + "...",
+                    "Actual": actual_category
+                }
 
                 for model in selected_models:
                     if model == "Llama-3.2-3B":
@@ -193,9 +204,11 @@ def main():
             results_df = pd.DataFrame(results)
 
             st.subheader("Model Accuracies")
-            for model in selected_models:
-                accuracy = (results_df[model] == results_df['Actual']).mean() * 100
-                st.metric(f"{model} Accuracy", f"{accuracy:.1f}%")
+            cols = st.columns(len(selected_models))
+            for idx, model in enumerate(selected_models):
+                with cols[idx]:
+                    accuracy = (results_df[model] == results_df['Actual']).mean() * 100
+                    st.metric(f"{model} Accuracy", f"{accuracy:.1f}%")
 
             st.subheader("Classification Results")
             st.dataframe(results_df)
@@ -225,7 +238,6 @@ def main():
         sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
         st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
 
-    # Footer
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center;'>
