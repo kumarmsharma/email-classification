@@ -123,7 +123,7 @@ def main():
     )
 
     # Header
-    st.image("https://via.placeholder.com/1024x150.png?text=IT+Support+Ticket+Classifier", use_column_width=True)
+    st.image("https://media.assettype.com/analyticsinsight%2Fimport%2Fwp-content%2Fuploads%2F2020%2F08%2FIT-TICKET-CLASSIFICATION.jpg?w=1024&auto=format%2Ccompress&fit=max", use_column_width=True)
     st.title("🎫 IT Support Ticket Classifier")
     st.markdown("""
     Welcome to the **IT Support Ticket Classifier**!
