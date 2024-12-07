@@ -20,7 +20,7 @@ def main():
     # Apply Theme
     theme_styles = {
         "Light": {"background": "#FFFFFF", "text": "#000000", "sidebar_bg": "#F8F9FA", "sidebar_text": "#000000"},
-        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF", "sidebar_bg": "#000000", "sidebar_text": "#000000"}
+        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF", "sidebar_bg": "#F8F9FA", "sidebar_text": "#000000"}
     }
     st.markdown(
         f"""
