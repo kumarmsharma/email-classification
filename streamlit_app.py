@@ -107,30 +107,19 @@ def main():
 
     # Apply Theme
     theme_styles = {
-    "Light": {"background": "#FFFFFF", "text": "#000000", "sidebar_bg": "#000000", "sidebar_text": "#FFFFFF"},
-    "Dark": {"background": "#1E1E1E", "text": "#FFFFFF", "sidebar_bg": "#000000", "sidebar_text": "#FFFFFF"}
-}
-
-st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-color: {theme_styles[theme_choice]["background"]};
-        color: {theme_styles[theme_choice]["text"]};
-    }}
-    .css-1d391kg {{
-        background-color: {theme_styles[theme_choice]["sidebar_bg"]};
-        color: {theme_styles[theme_choice]["sidebar_text"]};
-    }}
-    .css-1etlf1k {{
-        background-color: {theme_styles[theme_choice]["sidebar_bg"]};
-        color: {theme_styles[theme_choice]["sidebar_text"]};
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
+        "Light": {"background": "#FFFFFF", "text": "#000000"},
+        "Dark": {"background": "#1E1E1E", "text": "#FFFFFF"}
+    }
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {theme_styles[theme_choice]["background"]};
+            color: {theme_styles[theme_choice]["text"]};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
     )
 
     # Header
