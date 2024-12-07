@@ -99,7 +99,6 @@ def main():
     Analyze ticket data, compare model performance, and explore insights easily.
     """)
 
-    
     # Sidebar configuration
     with st.sidebar:
         st.header("Configuration")
@@ -121,17 +120,15 @@ def main():
     ]
     )
 
-    
     # Single Ticket Analysis
     with tab1:
         st.header("Single Ticket Classification")
         input_text = st.text_area(
-    "Enter support ticket text 📝:",
-    height=100,
-    placeholder="Type or paste the support ticket here...",
-    help="Input the text of the IT support ticket for classification."
-)
-
+            "Enter support ticket text 📝:",
+            height=100,
+            placeholder="Type or paste the support ticket here...",
+            help="Input the text of the IT support ticket for classification."
+        )
         
         if st.button("Classify Ticket") and api_key and input_text:
             with st.spinner("Classifying ticket..."):
@@ -223,6 +220,17 @@ def main():
         st.subheader("Sample Tickets")
         sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
         st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
+
+    # Footer
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style='text-align: center;'>
+            <p>Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong></p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()
