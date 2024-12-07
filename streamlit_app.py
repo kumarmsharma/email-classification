@@ -255,4 +255,9 @@ def main():
             Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong>
         </div>
         """,
-        unsafe_allow_html=T
+        unsafe_allow_html=True
+    )
+
+
+if __name__ == "__main__":
+    main()
