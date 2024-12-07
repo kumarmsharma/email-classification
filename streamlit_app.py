@@ -91,7 +91,10 @@ def plot_category_distribution(df):
 def main():
     st.set_page_config(page_title="IT Ticket Classifier", layout="wide")
     
-    st.image("https://media.assettype.com/analyticsinsight%2Fimport%2Fwp-content%2Fuploads%2F2020%2F08%2FIT-TICKET-CLASSIFICATION.jpg?w=1024&auto=format%2Ccompress&fit=max", use_column_width=True)
+    st.image(
+        "https://media.assettype.com/analyticsinsight%2Fimport%2Fwp-content%2Fuploads%2F2020%2F08%2FIT-TICKET-CLASSIFICATION.jpg?w=1024&auto=format%2Ccompress&fit=max",
+        use_column_width=True
+    )
     st.title("🎫 IT Support Ticket Classifier")
     st.markdown("""
     Welcome to the **IT Support Ticket Classifier**!  
@@ -101,23 +104,25 @@ def main():
 
     # Sidebar configuration
     with st.sidebar:
-        st.header("Configuration")
+        st.header("⚙️ Configuration")
         api_key = st.secrets['HFkey']
         st.markdown("---")
-        st.header("Model Selection")
+        st.header("📊 Model Selection")
         selected_models = st.multiselect(
             "Choose models to compare:",
             ["Llama-3.2-3B", "Mixtral-8x7B"],  # Updated model names
             default=["Llama-3.2-3B"]
         )
-    
+        st.markdown("---")
+        st.write("**Developed by Team JAK**")
+
     # Main content tabs
     tab1, tab2, tab3 = st.tabs(
-    [
-        "🎫 Single Ticket",
-        "📊 Batch Analysis",
-        "📂 Dataset Overview"
-    ]
+        [
+            "🎫 Single Ticket",
+            "📊 Batch Analysis",
+            "📂 Dataset Overview"
+        ]
     )
 
     # Single Ticket Analysis
@@ -129,8 +134,8 @@ def main():
             placeholder="Type or paste the support ticket here...",
             help="Input the text of the IT support ticket for classification."
         )
-        
-        if st.button("Classify Ticket") and api_key and input_text:
+        submit_button = st.button("🎯 Classify Ticket")
+        if submit_button and api_key and input_text:
             with st.spinner("Classifying ticket..."):
                 for model in selected_models:
                     st.subheader(f"{model} Classification")
@@ -147,24 +152,15 @@ def main():
     with tab2:
         st.header("Batch Analysis")
         df = load_and_cache_data()
-        
         num_samples = st.slider("Number of tickets to analyze:", 1, 20, 5)
-        
-        if st.button("Start Batch Analysis") and api_key:
+        if st.button("📊 Start Batch Analysis") and api_key:
             sample_df = df.head(num_samples)
             results = []
-            
-            progress_text = "Analyzing tickets..."
-            progress_bar = st.progress(0)
             
             for idx, row in enumerate(sample_df.iterrows()):
                 ticket_text = row[1]['Document']
                 actual_category = row[1]['Topic_group']
-                
-                result = {
-                    "Ticket": ticket_text[:100] + "...",
-                    "Actual": actual_category
-                }
+                result = {"Ticket": ticket_text[:100] + "...", "Actual": actual_category}
                 
                 for model in selected_models:
                     if model == "Llama-3.2-3B":
@@ -175,62 +171,27 @@ def main():
                     result[model] = classifier.predict(ticket_text)
                 
                 results.append(result)
-                progress_bar.progress((idx + 1) / num_samples)
-                time.sleep(2)  # Rate limiting
             
             results_df = pd.DataFrame(results)
-            
-            # Display accuracies
-            st.subheader("Model Accuracies")
-            cols = st.columns(len(selected_models))
-            for idx, model in enumerate(selected_models):
-                with cols[idx]:
-                    accuracy = (results_df[model] == results_df['Actual']).mean() * 100
-                    st.metric(f"{model} Accuracy", f"{accuracy:.1f}%")
-            
-            # Display results table
-            st.subheader("Classification Results")
             st.dataframe(results_df)
-            
-            # Save results option
-            if st.button("Download Results"):
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                results_df.to_csv(f'classification_results_{timestamp}.csv', index=False)
-                st.success("Results saved to CSV!")
     
     # Dataset Overview
     with tab3:
         st.header("Dataset Overview")
         df = load_and_cache_data()
-        
-        # Display basic statistics
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Tickets", len(df))
-        with col2:
-            st.metric("Categories", df['Topic_group'].nunique())
-        with col3:
-            st.metric("Most Common Category", df['Topic_group'].mode()[0])
-        
-        # Show category distribution
+        st.metric("Total Tickets", len(df))
+        st.metric("Categories", df['Topic_group'].nunique())
+        st.metric("Most Common Category", df['Topic_group'].mode()[0])
         st.subheader("Category Distribution")
         plot_category_distribution(df)
-        
-        # Display sample tickets
-        st.subheader("Sample Tickets")
-        sample_size = st.slider("Number of sample tickets to display:", 1, 10, 5)
-        st.dataframe(df.sample(sample_size)[['Document', 'Topic_group']])
 
     # Footer
     st.markdown("---")
-    st.markdown(
-        """
-        <div style='text-align: center;'>
-            <p>Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong></p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div style='text-align: center;'>
+        <p>Developed by <strong>Team JAK</strong> | Powered by <strong>Streamlit</strong></p>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
