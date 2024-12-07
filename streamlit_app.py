@@ -125,7 +125,13 @@ def main():
     # Single Ticket Analysis
     with tab1:
         st.header("Single Ticket Classification")
-        input_text = st.text_area("Enter support ticket text:", height=100)
+        input_text = st.text_area(
+    "Enter support ticket text 📝:",
+    height=100,
+    placeholder="Type or paste the support ticket here...",
+    help="Input the text of the IT support ticket for classification."
+)
+
         
         if st.button("Classify Ticket") and api_key and input_text:
             with st.spinner("Classifying ticket..."):
